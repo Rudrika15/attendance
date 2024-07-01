@@ -15,7 +15,7 @@
             </div>
             @if (auth()->user()->can('user-create'))
                 <div class="">
-                    <a class="btn btn-success mb-2" href="{{ route('users.create') }}"><i class="fa fa-plus"></i> Create New
+                    <a class="btn btn-secondary mb-2" href="{{ route('users.create') }}"><i class="fa fa-plus"></i> Create New
                         User</a>
                 </div>
             @endif
@@ -42,20 +42,17 @@
                             <td>
                                 @if (!empty($user->getRoleNames()))
                                     @foreach ($user->getRoleNames() as $v)
-                                        <label class="badge bg-success">{{ $v }}</label>
+                                        <label class="badge bg-success text-white">{{ $v }}</label>
                                     @endforeach
                                 @endif
                             </td>
                             <td>
-                                <a class="btn btn-info btn-sm" href="{{ route('users.show', $user->id) }}"><i
-                                        class="fas fa-eye"></i> Show</a>
+                                <a class="btn btn-info btn-sm" href="{{ route('users.show', $user->id) }}"><i class="fas fa-eye"></i> Show</a>
                                 @can('user-edit')
-                                    <a class="btn btn-primary btn-sm" href="{{ route('users.edit', $user->id) }}"><i
-                                            class="fas fa-edit"></i> Edit</a>
+                                    <a class="btn btn-primary btn-sm" href="{{ route('users.edit', $user->id) }}"><i class="fas fa-edit"></i> Edit</a>
                                 @endcan
-                                @cannot('user-delete')
-                                    <form method="POST" action="{{ route('users.destroy', $user->id) }}"
-                                        style="display:inline">
+                                @can('user-delete')
+                                    <form method="POST" action="{{ route('users.destroy', $user->id) }}" style="display:inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>

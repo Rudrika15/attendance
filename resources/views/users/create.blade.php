@@ -21,7 +21,7 @@
             </div>
             @if (auth()->user()->can('user-create'))
                 <div class="">
-                    <a class="btn btn-success mb-2" href="{{ route('users.create') }}">
+                    <a class="btn btn-secondary mb-2" href="{{ route('users.index') }}">
                         Back</a>
                 </div>
             @endif
@@ -59,8 +59,7 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Confirm Password:</strong>
-                            <input type="password" name="confirm-password" placeholder="Confirm Password"
-                                class="form-control">
+                            <input type="password" name="confirm-password" placeholder="Confirm Password" class="form-control">
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -76,8 +75,7 @@
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                        <button type="submit" class="btn btn-primary btn-sm mt-2 mb-3"><i
-                                class="fa-solid fa-floppy-disk"></i>
+                        <button type="submit" class="btn btn-success btn-sm mt-2 mb-3"><i class="fa-solid fa-floppy-disk"></i>
                             Submit</button>
                     </div>
                 </div>

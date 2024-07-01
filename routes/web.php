@@ -9,9 +9,12 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Auth;
 
-Route::get('/', function () {
-    return view('auth/login');
-});
+// Route::get('/', function () {
+//     return view('auth/login');
+// });
+// Route::get('/', function () {
+//     return view('auth/login');
+// });
 
 Auth::routes();
 
