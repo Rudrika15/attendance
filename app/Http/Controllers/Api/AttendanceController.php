@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 
 use Illuminate\Support\Facades\Validator;
 use App\Models\Attendance;
+use App\Models\Leave;
 use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
@@ -131,48 +132,89 @@ class AttendanceController extends Controller
         ], 201);
     }
 
-    public function todayattendance(Request $request )
+    public function todayattendance(Request $request)
     {
-         $userId = Auth::user()->id;
-         $currentDate = now()->toDateString();
+        $userId = Auth::user()->id;
+        $currentDate = now()->toDateString();
 
-        $data = Attendance::where( 'user_id' , '=' ,$userId)
-        ->whereDate('date', $currentDate)
-        ->get();
+        $data = Attendance::where('user_id', '=', $userId)
+            ->whereDate('date', $currentDate)
+            ->get();
 
-       return response()->json([
-        'message' => 'Get Attendance recorded successfully',
-        'attendance' => $data
-		], 201);
+        return response()->json([
+            'message' => 'Get Attendance recorded successfully',
+            'attendance' => $data
+        ], 201);
     }
-    
 
-    public function index(Request $request )
+
+    public function index(Request $request)
     {
-         $userId = Auth::user()->id;
+        $userId = Auth::user()->id;
         //  return $attendance = Attendance::all();
-        $data = Attendance::where( 'user_id' , '=' ,$userId   )->get();
+        $data = Attendance::where('user_id', '=', $userId)->get();
 
-    //    return $data->checkin;
-       return response()->json([
-        'message' => 'Get Attendance recorded successfully',
-        'User' => $data
-    ], 201);
+        //    return $data->checkin;
+        return response()->json([
+            'message' => 'Get Attendance recorded successfully',
+            'User' => $data
+        ], 201);
     }
-    
+
     public function deleteAttendance(Request $request)
     {
-        
+
         $userId = Auth::user()->id;
         $date = $request->date;
-        
-         $attendance = Attendance::where('date',$date)->first();
+
+        $attendance = Attendance::where('date', $date)->first();
         $attendance->delete();
-        
-       return response()->json([
-        'message' => 'Deleted successfuly',
-        'data' => $attendance
-    ], 200);
-        
+
+        return response()->json([
+            'message' => 'Deleted successfuly',
+            'data' => $attendance
+        ], 200);
+    }
+
+    public function leaveRequest(Request $request)
+    {
+        $rules = [
+            'startDate' => 'required',
+            'endDate' => 'required',
+            'reason' => 'required',
+            'leaveType' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $userId = Auth::user()->id;
+        $leave = new Leave();
+        $leave->userId = $userId;
+        $leave->startDate = $request->startDate;
+        $leave->endDate = $request->endDate;
+        $leave->reason = $request->reason;
+        $leave->leaveType = $request->leaveType;
+        $leave->save();
+        return response()->json([
+            'message' => 'Leave request sent successfully',
+            'data' => $leave
+        ], 201);
+    }
+
+
+    public function myLeaves()
+    {
+        $userId = Auth::user()->id;
+        $leaves = Leave::where('userId', $userId)->get();
+        return response()->json([
+            'message' => 'Get Leaves successfully',
+            'data' => $leaves
+        ], 200);
     }
 }

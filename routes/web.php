@@ -16,11 +16,12 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/approve/leave/{id}', [HomeController::class, 'leaveApproved'])->name('leave.approve');
 
-Route::group(['middleware' => ['auth']], function() {
+Route::group(['middleware' => ['auth']], function () {
     Route::resource('roles', RoleController::class);
 
     Route::resource('users', UserController::class);
-    
+
     Route::get('/Report', [ReportController::class, 'display'])->name('report.display');
 });

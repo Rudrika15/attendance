@@ -18,4 +18,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // change password
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
+    Route::post('/leave/request', [AttendanceController::class, 'leaveRequest']);
+    Route::get('/leaves', [AttendanceController::class, 'myLeaves']);
 });
