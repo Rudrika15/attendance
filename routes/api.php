@@ -10,11 +10,12 @@ use App\Http\Controllers\Api\AttendanceController;
 Route::post('/auth/register', [AuthController::class, 'createUser']);
 Route::post('/auth/login', [AuthController::class, 'loginUser']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/show-attendance', [AttendanceController::class ,'index']);
-    Route::get('/today-attendance', [AttendanceController::class ,'todayattendance']);
-    Route::post('/attendance', [AttendanceController::class ,'store']);
-    Route::get('/attendance/delete', [AttendanceController::class ,'deleteAttendance']);
+    Route::get('/show-attendance', [AttendanceController::class, 'index']);
+    Route::get('/today-attendance', [AttendanceController::class, 'todayattendance']);
+    Route::post('/attendance', [AttendanceController::class, 'store']);
+    Route::get('/attendance/delete', [AttendanceController::class, 'deleteAttendance']);
+
+
+    // change password
+    Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
 });
-
-
-
