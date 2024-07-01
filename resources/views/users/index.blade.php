@@ -10,7 +10,7 @@
 
     <div class="card">
         <div class="card-header py-3 d-flex justify-content-between h5">
-            <div class=" pt-3">
+            <div class="pt-3">
                 Users
             </div>
             @if (auth()->user()->can('user-create'))
@@ -52,14 +52,14 @@
                                     <a class="btn btn-primary btn-sm" href="{{ route('users.edit', $user->id) }}"><i class="fas fa-edit"></i> Edit</a>
                                 @endcan
                                 @can('user-delete')
-                                    <form method="POST" action="{{ route('users.destroy', $user->id) }}" style="display:inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i>
-                                            Delete</button>
-                                    </form>
-                                @endcannot
-
+                                    @if (!$user->hasRole('Admin'))
+                                        <form method="POST" action="{{ route('users.destroy', $user->id) }}" style="display:inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+                                        </form>
+                                    @endif
+                                @endcan
                             </td>
                         </tr>
                     @endif
