@@ -9,16 +9,16 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Auth;
 
-// Route::get('/', function () {
-//     return view('auth/login');
-// });
+Route::get('/', function () {
+    return view('auth/login');
+});
 // Route::get('/', function () {
 //     return view('auth/login');
 // });
 
 Auth::routes();
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/approve/leave/{id}', [HomeController::class, 'leaveApproved'])->name('leave.approve');
 
 Route::group(['middleware' => ['auth']], function () {

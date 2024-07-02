@@ -25,7 +25,7 @@ class AttendanceController extends Controller
             'timekey.required' => 'The timekey field is required.',
             'timekey.in' => 'The timekey must be one of the following values: checkin, checkout, on_break, off_break.',
             'time.required' => 'The time field is required.',
-            'time.date_format' => 'The time must be in the format HH:MM:SS.',
+            'time.date_format' => 'The time must be in the format HH:MM:SS .',
         ]);
 
         if ($validator->fails()) {
@@ -92,18 +92,15 @@ class AttendanceController extends Controller
                     }
 
                     $checkout_seconds = strtotime($time);
-                    $checkin_seconds = strtotime($attendance->checkin ?? "00:00:00");
-                    $onbreak_seconds = strtotime($attendance->on_break ?? "00:00:00");
-                    $offbreak_seconds = strtotime($attendance->off_break ?? "00:00:00");
+                    $checkin_seconds = strtotime($attendance->checkin);
+                    $onbreak_seconds = strtotime($attendance->on_break);
+                    $offbreak_seconds = strtotime($attendance->off_break);
 
-                    $checkinout_duration = $checkout_seconds - $checkin_seconds;
-                    $onoffbreak_duration = $offbreak_seconds - $onbreak_seconds;
+                    $total_working_seconds = $checkout_seconds - $checkin_seconds - ($offbreak_seconds - $onbreak_seconds);
 
-                    $total_hours = ($checkinout_duration - $onoffbreak_duration) / 3600;
+                    $total_hours = gmdate('H:i:s', $total_working_seconds);
 
-                    $total_formatted = gmdate('H:i:s', $total_hours * 3600);
-
-                    $attendance->total_hours = $total_formatted;
+                    $attendance->total_hours = $total_hours;
 
                     $attendance->checkout = $time;
                     break;
@@ -131,6 +128,7 @@ class AttendanceController extends Controller
             'attendance' => $attendance
         ], 201);
     }
+
 
     public function todayattendance(Request $request)
     {
