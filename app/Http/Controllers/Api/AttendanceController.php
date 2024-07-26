@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Attendance;
 use App\Models\Leave;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
@@ -20,12 +21,9 @@ class AttendanceController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'timekey' => 'required|in:checkin,checkout,on_break,off_break',
-            'time' => 'required|date_format:H:i:s',
         ], [
             'timekey.required' => 'The timekey field is required.',
             'timekey.in' => 'The timekey must be one of the following values: checkin, checkout, on_break, off_break.',
-            'time.required' => 'The time field is required.',
-            'time.date_format' => 'The time must be in the format HH:MM:SS .',
         ]);
 
         if ($validator->fails()) {
@@ -36,7 +34,7 @@ class AttendanceController extends Controller
         }
 
         $timekey = $request->timekey;
-        $time = $request->time;
+        $time = Carbon::now('Asia/Kolkata')->format('H:i:s');
         $userId = auth()->user()->id;
 
         $attendance = Attendance::where('user_id', $userId)

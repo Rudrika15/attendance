@@ -20,4 +20,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/change-password', [AuthController::class, 'changePassword']);
     Route::post('/leave/request', [AttendanceController::class, 'leaveRequest']);
     Route::get('/leaves', [AttendanceController::class, 'myLeaves']);
+    Route::post('/save-token', [AuthController::class, 'saveToken']);
 });

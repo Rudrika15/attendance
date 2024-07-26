@@ -90,11 +90,12 @@ class AuthController extends Controller
             }
 
             $user = User::where('phone', $request->phone)->first();
-
+            $role  = $user->getRoleNames();
             return response()->json([
                 'status' => true,
                 'message' => 'User Logged In Successfully',
                 'user' => $user,
+                'role' => $role,
                 'token' => $user->createToken("API TOKEN")->plainTextToken
             ], 200);
         } catch (\Throwable $th) {
@@ -136,6 +137,30 @@ class AuthController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Password Changed Successfully',
+        ], 200);
+    }
+
+    public function saveToken(Request $request)
+    {
+        $rules = [
+            'device_token' => 'required',
+        ];
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => 'validation error',
+                'errors' => $validator->errors()
+            ], 401);
+        }
+        $authUser = Auth::user()->id;
+        $user = User::find($authUser);
+        $user->device_token = $request->device_token;
+        $user->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Token Saved Successfully',
         ], 200);
     }
 }

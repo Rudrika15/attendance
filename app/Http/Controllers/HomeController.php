@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
 use App\Models\Leave;
 use App\Models\User;
 use Carbon\Carbon;
@@ -24,20 +25,25 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(Request $request)
     {
         $users = User::whereHas('roles', function ($query) {
             $query->where('name', '!=', 'Admin');
         })->count();
 
+        // Leave applications with status Pending
         $leaveApplications = Leave::where('status', 'Pending')->paginate(10);
-        // return Carbon::today()->toDateString();
+
+        // Today's approved leave applications
         $todayOnLeave = Leave::where('status', 'Approved')
             ->whereDate('startDate', '<=', Carbon::today()->toDateString())
             ->whereDate('endDate', '>=', Carbon::today()->toDateString())
             ->get();
 
-        return view('home', compact('users', 'leaveApplications', 'todayOnLeave'));
+        // Daily attendance with optional date filtering
+        $date = $request->input('date', Carbon::today()->toDateString());
+        $dailyAttendance = Attendance::whereDate('date', $date)->get();
+        return view('home', compact('users', 'leaveApplications', 'todayOnLeave', 'dailyAttendance'));
     }
 
     public function leaveApproved($id)

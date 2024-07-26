@@ -8,9 +8,10 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+
 class User extends Authenticatable
 {
-    use HasFactory,HasRoles, HasApiTokens, HasFactory, Notifiable;
+    use HasFactory, HasRoles, HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -18,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'phone', 'email', 'password',
+        'name', 'phone', 'email', 'password',  'device_token'
     ];
 
     // Ensure phone is cast to string if necessary
@@ -53,7 +54,3 @@ class User extends Authenticatable
         return $this->hasMany(Attendance::class);
     }
 }
-
-
-
-

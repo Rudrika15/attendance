@@ -28,3 +28,5 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/Report', [ReportController::class, 'display'])->name('report.display');
 });
+
+Route::get('happy-birthday', [UserController::class, 'wish']);
