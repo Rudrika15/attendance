@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserApiController;
@@ -21,4 +22,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/leave/request', [AttendanceController::class, 'leaveRequest']);
     Route::get('/leaves', [AttendanceController::class, 'myLeaves']);
     Route::post('/save-token', [AuthController::class, 'saveToken']);
+
+
+    // admin routes
+    Route::get('/daily', [AdminController::class, 'dailyAttendance']);
+    Route::get('/leave-applications', [AdminController::class, 'leaveApplication']);
+    Route::post('/leave-approval/{id}', [AdminController::class, 'approveLeave']);
 });
