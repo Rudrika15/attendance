@@ -19,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'phone', 'email', 'password',  'device_token'
+        'name', 'phone', 'email', 'password',  'device_token','birthdate'
     ];
 
     // Ensure phone is cast to string if necessary

@@ -13,6 +13,7 @@
             </ul>
         </div>
     @endif
+    
 
     <div class="card">
         <div class="card-header py-3 d-flex justify-content-between h5">
@@ -48,6 +49,12 @@
                         <div class="form-group">
                             <strong>Email:</strong>
                             <input type="email" name="email" placeholder="Email" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Birth Date:</strong>
+                            <input type="date" name="birthdate"  class="form-control">
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">

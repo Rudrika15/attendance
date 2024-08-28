@@ -5,12 +5,19 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Leave;
+use App\Services\FirebaseService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
+    protected $firebaseService;
+
+    public function __construct(FirebaseService $firebaseService)
+    {
+        $this->firebaseService = $firebaseService;
+    }
     public function dailyAttendance(Request $request)
     {
         $date = $request->input('date', Carbon::today()->toDateString());
@@ -90,7 +97,9 @@ class AdminController extends Controller
 
     public function leaveApplication(Request $request)
     {
-        $leaveApplications = Leave::with('user')->where('status', 'Pending')->paginate(10);
+        $leaveApplications = Leave::with('user')->where('status', 'Pending')
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
         return response()->json([
             'status' => true,
             'message' => 'Leave applications fetched successfully',
@@ -114,6 +123,16 @@ class AdminController extends Controller
         $leave = Leave::find($id);
         $leave->status = $request->status;
         $leave->save();
+
+        // Send firebase the notification
+        $name = $leave->user->name;
+        $token = $leave->user->token;
+        $this->firebaseService->sendNotification(
+            $token,
+            'Leave Application Status Update',
+            'Dear ' . $name . ', your leave application has been ' . $request->status . ' by HR. Thank you for your patience.'
+        );
+        
         return response()->json([
             'status' => true,
             'message' => 'Leave application approved successfully',

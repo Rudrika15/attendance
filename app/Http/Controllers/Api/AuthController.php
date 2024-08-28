@@ -8,6 +8,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Kreait\Laravel\Firebase\Facades\Firebase;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
+
 
 class AuthController extends Controller
 {
@@ -91,6 +95,8 @@ class AuthController extends Controller
 
             $user = User::where('phone', $request->phone)->first();
             $role  = $user->getRoleNames();
+
+
             return response()->json([
                 'status' => true,
                 'message' => 'User Logged In Successfully',
@@ -143,7 +149,7 @@ class AuthController extends Controller
     public function saveToken(Request $request)
     {
         $rules = [
-            'device_token' => 'required',
+            'token' => 'required',
         ];
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -155,7 +161,7 @@ class AuthController extends Controller
         }
         $authUser = Auth::user()->id;
         $user = User::find($authUser);
-        $user->device_token = $request->device_token;
+        $user->token = $request->token;
         $user->save();
 
         return response()->json([

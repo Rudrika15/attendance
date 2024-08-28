@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Notifications\BirthdayWish;
+use App\Services\FirebaseService;
+use Carbon\Carbon;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -22,12 +24,15 @@ class UserController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    function __construct()
+    protected $firebaseService;
+
+    function __construct(FirebaseService $firebaseService)
     {
         $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index', 'store']]);
         $this->middleware('permission:user-create', ['only' => ['create', 'store']]);
         $this->middleware('permission:user-edit', ['only' => ['edit', 'update']]);
         $this->middleware('permission:user-delete', ['only' => ['destroy']]);
+        $this->firebaseService = $firebaseService;
     }
     public function index(Request $request): View
     {
@@ -118,6 +123,7 @@ class UserController extends Controller
             'name' => 'required',
             'phone' => 'required|digits:10',
             'email' => 'required|email|unique:users,email,' . $id,
+            'birthdate' => 'required',
             'password' => 'same:confirm-password',
             'roles' => 'required'
         ]);
@@ -153,13 +159,53 @@ class UserController extends Controller
     }
     public function wish(Request $request)
     {
-        $user = User::find(1);
 
-        $messages["hi"] = "Hey, Happy Birthday {$user->name}";
-        $messages["wish"] = "On behalf of the entire company I wish you a very happy birthday and send you my best wishes for much happiness in your life.";
-
-        $user->notify(new BirthdayWish($messages));
-
-        return redirect()->back();
+        $currentDate = Carbon::now();
+        $currentMonth = $currentDate->format('m');
+        $currentDay = $currentDate->format('d');
+        
+        // Fetch all users whose birthday matches today's date
+        $usersWithBirthday = User::whereMonth('birthdate', $currentMonth)
+            ->whereDay('birthdate', $currentDay)
+            ->get();
+        
+        if ($usersWithBirthday->isEmpty()) {
+            return response()->json([
+                'message' => 'No birthday found for today',
+                'data' => []
+            ], 200);
+        }
+        
+        // Collect tokens of users with birthdays
+        $birthdayUserTokens = $usersWithBirthday->pluck('token');
+        
+        // Notify each user about their own birthday
+        foreach ($usersWithBirthday as $userData) {
+            if ($userData->token) {
+                $this->firebaseService->sendNotification($userData->token, '🎉 Happy Birthday! 🎉', "Happy Birthday! May this year bring you success, happiness, and fulfillment both personally and professionally. Enjoy your special day and have a great year ahead! 🎂🥳🎁");
+            }
+        }
+        
+        // Fetch all users who are not the ones with birthdays
+        $allUsers = User::whereNotNull('token')
+            ->whereNotIn('token', $birthdayUserTokens)
+            ->get();
+        
+        // Notify all users about the birthdays of others
+        foreach ($usersWithBirthday as $userData) {
+            foreach ($allUsers as $otherUser) {
+                if ($otherUser->token) {
+                    $this->firebaseService->sendNotification($otherUser->token,  '🎉 It\'s a Birthday Celebration! 🎉',
+                    "Today is {$userData->name}'s birthday! Let's join in the celebration and wish them a fantastic day filled with joy and happiness. 🎂🎁🥳");
+                }
+            }
+        }
+        
+        return response()->json([
+            'message' => 'Wish sent successfully',
+            'data' => $usersWithBirthday
+        ], 200);
+        
+        
     }
 }

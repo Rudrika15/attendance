@@ -32,7 +32,7 @@ class HomeController extends Controller
         })->count();
 
         // Leave applications with status Pending
-        $leaveApplications = Leave::where('status', 'Pending')->paginate(10);
+        $leaveApplications = Leave::where('status', 'Pending')->orderBy('id', 'desc')->paginate(10);
 
         // Today's approved leave applications
         $todayOnLeave = Leave::where('status', 'Approved')
