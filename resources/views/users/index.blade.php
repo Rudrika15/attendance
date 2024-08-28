@@ -29,6 +29,7 @@
                         <th>Name</th>
                         <th>Phone</th>
                         <th>Email</th>
+                        <th>Birthdate</th>
                         <th>Roles</th>
                         <th width="280px">Action</th>
                     </tr>
@@ -40,6 +41,7 @@
                                 <td>{{ $user->name }}</td>
                                 <td>{{ $user->phone }}</td>
                                 <td>{{ $user->email }}</td>
+                                <td>{{ $user->birthdate }}</td>
                                 <td>
                                     @if (!empty($user->getRoleNames()))
                                         @foreach ($user->getRoleNames() as $v)
