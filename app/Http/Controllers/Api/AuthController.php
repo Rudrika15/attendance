@@ -8,6 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 class AuthController extends Controller
 {
@@ -91,6 +93,8 @@ class AuthController extends Controller
 
             $user = User::where('phone', $request->phone)->first();
             $role  = $user->getRoleNames();
+
+
             return response()->json([
                 'status' => true,
                 'message' => 'User Logged In Successfully',

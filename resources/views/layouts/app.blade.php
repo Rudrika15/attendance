@@ -11,13 +11,19 @@
 
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon.png') }}" alt="faviconImg.png">
     <title>FlipCode (Attendance Management)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
     <!-- Custom fonts for this template-->
     <link href="{{ asset('assets/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
 
     <!-- Custom styles for this template-->
     <link href="{{ asset('assets/css/sb-admin-2.min.css') }}" rel="stylesheet">
+
+
 
 </head>
 
@@ -30,7 +36,8 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand bg-white d-flex border-right align-items-center justify-content-center" href="{{ route('home') }}">
+            <a class="sidebar-brand bg-white d-flex border-right align-items-center justify-content-center"
+                href="{{ route('home') }}">
                 {{-- <div class="sidebar-brand-icon rotate-n-15">
                     <i class="fas fa-laugh-wink"></i>
                 </div>
@@ -125,14 +132,18 @@
                     <ul class="navbar-nav ml-auto">
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 h5 pt-2">{{ Auth::user()->name }}</span>
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span
+                                    class="mr-2 d-none d-lg-inline text-gray-600 h5 pt-2">{{ Auth::user()->name }}</span>
                                 {{-- <img class="img-profile rounded-circle" src="{}"> --}}
                             </a>
                             <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
 
-                                <a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <a class="dropdown-item" href="{{ route('logout') }}"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Logout
                                 </a>
@@ -149,7 +160,18 @@
                 <!-- End of Topbar -->
 
                 <div class="container-fluid">
+                    {{-- <div class="d-flex justify-content-end">
+                        @if (session('success'))
+                            <div class="toast" role="alert" aria-live="assertive" data-bs-delay="10000"
+                                aria-atomic="true">
+                                <div class="toast-body text-white bg-success">
+                                    {{ session('success') }}
+                                </div>
+                            </div>
+                        @endif
 
+
+                    </div> --}}
                     @yield('content')
                 </div>
 
@@ -176,6 +198,22 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+    </script>
+
+
+    {{-- <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var toastElement = document.querySelector('.toast');
+            if (toastElement) {
+                var toast = new bootstrap.Toast(toastElement);
+                toast.show();
+
+            }
+        });
+    </script> --}}
 
 
 
