@@ -24,6 +24,7 @@ class AttendanceController extends Controller
         $this->firebaseService = $firebaseService;
     }
 
+
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -356,7 +357,7 @@ class AttendanceController extends Controller
         $leave->endDate = $request->endDate;
         $leave->reason = $request->reason;
         $leave->leaveType = $request->leaveType;
-        // $leave->save();
+        $leave->save();
 
         $admins = User::whereHas('roles', function ($q) {
             $q->where('name', 'admin');

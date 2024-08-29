@@ -5,12 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Services\FirebaseService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Kreait\Laravel\Firebase\Facades\Firebase;
-use Kreait\Firebase\Messaging\CloudMessage;
-use Kreait\Firebase\Messaging\Notification;
 
 
 class AuthController extends Controller
@@ -20,7 +18,15 @@ class AuthController extends Controller
      * @param Request $request
      * @return User
      */
-    public function createUser(Request $request)
+
+     protected $firebaseService;
+
+     public function __construct(FirebaseService $firebaseService)
+     {
+         $this->firebaseService = $firebaseService;
+     }
+
+     public function createUser(Request $request)
     {
         try {
 

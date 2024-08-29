@@ -97,7 +97,7 @@ class AdminController extends Controller
 
     public function leaveApplication(Request $request)
     {
-        $leaveApplications = Leave::with('user')->where('status', 'Pending')
+        $leaveApplications = Leave::with('user')
         ->orderBy('created_at', 'desc')
         ->paginate(10);
         return response()->json([
