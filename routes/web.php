@@ -18,10 +18,10 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/approve/leave/{id}', [HomeController::class, 'leaveApproved'])->name('leave.approve');
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+    Route::get('/approve/leave/{id}', [HomeController::class, 'leaveApproved'])->name('leave.approve');
     Route::resource('roles', RoleController::class);
 
     Route::resource('users', UserController::class);
