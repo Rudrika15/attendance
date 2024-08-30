@@ -28,4 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/daily', [AdminController::class, 'dailyAttendance']);
     Route::get('/leave-applications', [AdminController::class, 'leaveApplication']);
     Route::post('/leave-approval/{id}', [AdminController::class, 'approveLeave']);
+    Route::post('/leave/cancel/{id}', [AdminController::class, 'cancelLeave']);
+    
+    Route::get('/notifications', [AttendanceController::class, 'getNotifications']);
+    
 });

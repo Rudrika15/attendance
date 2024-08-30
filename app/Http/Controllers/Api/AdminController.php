@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Leave;
+use App\Models\Notification;
+use App\Models\User;
 use App\Services\FirebaseService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -20,7 +23,15 @@ class AdminController extends Controller
     }
     public function dailyAttendance(Request $request)
     {
-        $date = $request->input('date', Carbon::today()->toDateString());
+        // Validate the date parameter to ensure it's in a correct format (YYYY-MM-DD)
+        $validated = $request->validate([
+            'date' => 'nullable|date_format:Y-m-d',
+        ]);
+
+        // Use the provided date or default to today
+        $date = $validated['date'] ?? Carbon::today()->toDateString();
+
+        // Fetch attendance records for the specified date
         $dailyAttendance = Attendance::with('user')->whereDate('date', $date)->get();
 
         $userAttendance = [];
@@ -42,6 +53,7 @@ class AdminController extends Controller
             $onBreak = Carbon::parse($attendance->on_break);
             $offBreak = Carbon::parse($attendance->off_break);
 
+            // Adjust for cases where offBreak or checkout is on the next day
             if ($offBreak->lt($onBreak)) {
                 $onBreak = $onBreak->copy()->addDay();
             }
@@ -88,6 +100,7 @@ class AdminController extends Controller
             unset($attendance['totalWorkingMinutes']);
         }
 
+        // Return the formatted response
         return response()->json([
             'status' => true,
             'message' => 'Daily attendance fetched successfully',
@@ -98,8 +111,8 @@ class AdminController extends Controller
     public function leaveApplication(Request $request)
     {
         $leaveApplications = Leave::with('user')
-        ->orderBy('created_at', 'desc')
-        ->paginate(10);
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
         return response()->json([
             'status' => true,
             'message' => 'Leave applications fetched successfully',
@@ -132,11 +145,33 @@ class AdminController extends Controller
             'Leave Application Status Update',
             'Dear ' . $name . ', your leave application has been ' . $request->status . ' by HR. Thank you for your patience.'
         );
-        
+
         return response()->json([
             'status' => true,
             'message' => 'Leave application approved successfully',
             'data' => $leave,
         ], 200);
+    }
+
+    public function cancelLeave(Request $request, $id)
+    {
+        $findAuthAdmin = User::whereHas('roles', function ($q) {
+            $q->where('name', 'Admin');
+        })->where('id', Auth::user()->id)->first();
+        if (!$findAuthAdmin) {
+            return response()->json([
+                'status' => false,
+                'message' => 'You are not authorized to perform this action.',
+            ], 200);
+        } else {
+            $leave = Leave::find($id);
+            $leave->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Leave application canceled successfully',
+                'data' => $leave,
+            ], 200);
+        }
     }
 }

@@ -27,6 +27,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('users', UserController::class);
 
     Route::get('/Report', [ReportController::class, 'display'])->name('report.display');
+    Route::get('/notification', [HomeController::class, 'notification'])->name('notification.index');
+    Route::post('/notification', [HomeController::class, 'addNotification'])->name('add.notification');
+    Route::get('/notification/delete/{id}', [HomeController::class, 'deleteNotification'])->name('delete.notification');
 });
 
 Route::get('happy-birthday', [UserController::class, 'wish']);

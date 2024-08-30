@@ -10,6 +10,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Attendance;
 use App\Models\Leave;
+use App\Models\Notification;
 use App\Services\FirebaseService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -362,7 +363,7 @@ class AttendanceController extends Controller
         $admins = User::whereHas('roles', function ($q) {
             $q->where('name', 'admin');
         })->get();
-      
+
         // Send firebase the notification
         foreach ($admins as $users) {
             $this->firebaseService->sendNotification($users->token, 'Leave Request', Auth::user()->name . ' has requested for leave.');
@@ -382,6 +383,51 @@ class AttendanceController extends Controller
         return response()->json([
             'message' => 'Get Leaves successfully',
             'data' => $leaves
+        ], 200);
+    }
+
+
+    public function getNotifications()
+    {
+        $sevenDaysAgo = Carbon::now()->subDays(7);
+
+        $notifications = Notification::where('created_at', '>=', $sevenDaysAgo)->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'message' => 'Get Notifications successfully',
+            'data' => $notifications
+        ], 200);
+    }
+    public function addNotification(Request $request)
+    {
+        $rules = [
+            'title' => 'required',
+            'detail' => 'required',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 200);
+        }
+
+        $notification = new Notification();
+        $notification->title = $request->title;
+        $notification->detail = $request->detail;
+        $notification->save();
+
+        $users = User::where('token','!=',Null)->get();
+
+        // Send firebase the notification
+        foreach ($users as $user) {
+            $this->firebaseService->sendNotification($user->token, $request->title, $request->detail);
+        }
+
+        return response()->json([
+            'message' => 'Get Notifications successfully',
+            'data' => $notification
         ], 200);
     }
 }
