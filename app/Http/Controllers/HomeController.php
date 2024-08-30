@@ -40,7 +40,11 @@ class HomeController extends Controller
         // Daily attendance with optional date filtering
         $date = $request->input('date', Carbon::today()->toDateString());
         $dailyAttendance = Attendance::whereDate('date', $date)->get();
-        return view('home', compact('users', 'leaveApplications', 'todayOnLeave', 'dailyAttendance'));
+
+        // birthday reminders
+        $today = Carbon::today()->toDateString();
+        $birthday = User::whereDate('birthdate', '=', $today)->get();
+        return view('home', compact('users', 'leaveApplications', 'todayOnLeave', 'dailyAttendance', 'birthday'));
     }
 
     public function leaveApproved($id)

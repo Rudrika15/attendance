@@ -3,7 +3,24 @@
 @section('content')
     <div class="container">
         <div class="row">
+            @if ($birthday->isNotEmpty())
+                <div class="col-md-12 pb-5">
+                    <div class="card">
+                        <div class="card-header h5">
+                            🎂 Birthday Reminders 🎉
+                        </div>
+                        <div class="card-body">
+                            @foreach ($birthday as $user)
+                                <h3>🎈 Today is <b>{{ $user->name }}'s</b> birthday! 🎁🎉</h3>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+
             <div class="col-md-12 pb-5">
+
                 <div class="card">
                     <div class="card-header h5">
                         Daily Attendance
@@ -14,7 +31,8 @@
                                     <button class="btn btn-primary" type="submit">Filter</button>
                                 </div>
                                 <div class="input-group-append">
-                                    <a href="{{ route('home', ['date' => now()->subDay()->toDateString()]) }}" class="btn btn-secondary">Yesterday</a>
+                                    <a href="{{ route('home', ['date' => now()->subDay()->toDateString()]) }}"
+                                        class="btn btn-secondary">Yesterday</a>
                                 </div>
                                 <div class="input-group-append">
                                     <a href="{{ route('home') }}" class="btn btn-light">Reset</a> <!-- Reset button -->
@@ -49,22 +67,31 @@
                                         <td>
                                             @php
                                                 $onBreak = \Carbon\Carbon::parse($daily->on_break);
-                                                $offBreak = $daily->off_break ? \Carbon\Carbon::parse($daily->off_break) : null;
-                                                $totalBreakMinutes = $offBreak ? $onBreak->diffInMinutes($offBreak) : null;
-                                                $totalBreakHours = $totalBreakMinutes ? floor($totalBreakMinutes / 60) : null;
+                                                $offBreak = $daily->off_break
+                                                    ? \Carbon\Carbon::parse($daily->off_break)
+                                                    : null;
+                                                $totalBreakMinutes = $offBreak
+                                                    ? $onBreak->diffInMinutes($offBreak)
+                                                    : null;
+                                                $totalBreakHours = $totalBreakMinutes
+                                                    ? floor($totalBreakMinutes / 60)
+                                                    : null;
                                                 $remainingMinutes = $totalBreakMinutes ? $totalBreakMinutes % 60 : null;
                                             @endphp
                                             @if ($totalBreakMinutes === null)
                                                 <span>-</span> <!-- Print dash if off break is not set -->
                                             @else
                                                 @if ($totalBreakHours > 0)
-                                                    <span class="text-danger">{{ $totalBreakHours }} hour{{ $totalBreakHours > 1 ? 's' : '' }}
+                                                    <span class="text-danger">{{ $totalBreakHours }}
+                                                        hour{{ $totalBreakHours > 1 ? 's' : '' }}
                                                         @if ($remainingMinutes > 0)
-                                                            and {{ $remainingMinutes }} minute{{ $remainingMinutes > 1 ? 's' : '' }}
+                                                            and {{ $remainingMinutes }}
+                                                            minute{{ $remainingMinutes > 1 ? 's' : '' }}
                                                         @endif
                                                     </span>
                                                 @else
-                                                    <span class="text-success">{{ $remainingMinutes }} minute{{ $remainingMinutes > 1 ? 's' : '' }}</span>
+                                                    <span class="text-success">{{ $remainingMinutes }}
+                                                        minute{{ $remainingMinutes > 1 ? 's' : '' }}</span>
                                                 @endif
                                             @endif
                                         </td>
@@ -87,21 +114,27 @@
                                             @if ($totalWorkingTime === null)
                                                 <span>-</span> <!-- Print dash if checkout is not set -->
                                             @elseif ($totalWorkingTime < 480)
-                                                <span class="text-danger">{{ $workingHours }} hour{{ $workingHours > 1 ? 's' : '' }}
+                                                <span class="text-danger">{{ $workingHours }}
+                                                    hour{{ $workingHours > 1 ? 's' : '' }}
                                                     @if ($remainingWorkingMinutes > 0)
-                                                        and {{ $remainingWorkingMinutes }} minute{{ $remainingWorkingMinutes > 1 ? 's' : '' }}
+                                                        and {{ $remainingWorkingMinutes }}
+                                                        minute{{ $remainingWorkingMinutes > 1 ? 's' : '' }}
                                                     @endif
                                                 </span>
                                             @elseif ($totalWorkingTime == 480)
-                                                <span class="text-primary">{{ $workingHours }} hour{{ $workingHours > 1 ? 's' : '' }}
+                                                <span class="text-primary">{{ $workingHours }}
+                                                    hour{{ $workingHours > 1 ? 's' : '' }}
                                                     @if ($remainingWorkingMinutes > 0)
-                                                        and {{ $remainingWorkingMinutes }} minute{{ $remainingWorkingMinutes > 1 ? 's' : '' }}
+                                                        and {{ $remainingWorkingMinutes }}
+                                                        minute{{ $remainingWorkingMinutes > 1 ? 's' : '' }}
                                                     @endif
                                                 </span>
                                             @else
-                                                <span class="text-success">{{ $workingHours }} hour{{ $workingHours > 1 ? 's' : '' }}
+                                                <span class="text-success">{{ $workingHours }}
+                                                    hour{{ $workingHours > 1 ? 's' : '' }}
                                                     @if ($remainingWorkingMinutes > 0)
-                                                        and {{ $remainingWorkingMinutes }} minute{{ $remainingWorkingMinutes > 1 ? 's' : '' }}
+                                                        and {{ $remainingWorkingMinutes }}
+                                                        minute{{ $remainingWorkingMinutes > 1 ? 's' : '' }}
                                                     @endif
                                                 </span>
                                             @endif
@@ -142,7 +175,8 @@
                                         <td> {{ $leave->reason }}</td>
                                         <td class="text-primary"> {{ $leave->status }}</td>
                                         <td>
-                                            <a href="{{ route('leave.approve', $leave->id) }}" class="btn btn-primary">Approve</a>
+                                            <a href="{{ route('leave.approve', $leave->id) }}"
+                                                class="btn btn-primary">Approve</a>
 
                                         </td>
                                     </tr>
