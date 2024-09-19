@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
@@ -30,6 +31,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/notification', [HomeController::class, 'notification'])->name('notification.index');
     Route::post('/notification', [HomeController::class, 'addNotification'])->name('add.notification');
     Route::get('/notification/delete/{id}', [HomeController::class, 'deleteNotification'])->name('delete.notification');
+    Route::get('/leave/report', [LeaveController::class, 'index'])->name('leave.report');
 });
 
 Route::get('happy-birthday', [UserController::class, 'wish']);
+Route::get('privacy-policy', [UserController::class, 'privacyPolicy']);

@@ -14,6 +14,10 @@ use App\Models\Notification;
 use App\Services\FirebaseService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
 class AttendanceController extends Controller
 
@@ -44,11 +48,14 @@ class AttendanceController extends Controller
 
         $timekey = $request->timekey;
         $time = Carbon::now('Asia/Kolkata')->format('H:i:s');
-        $userId = Auth::user()->id;
+        $user = Auth::user();
+        $userId = $user->id;
 
         $attendance = Attendance::where('user_id', $userId)
             ->whereDate('date', now()->toDateString())
             ->first();
+
+        $total_break_time = null;
 
         if ($attendance) {
             switch ($timekey) {
@@ -85,6 +92,14 @@ class AttendanceController extends Controller
                         ], 422);
                     }
                     $attendance->off_break = $time;
+
+                    // Calculate break time after `off_break`
+                    $onbreak_seconds = strtotime($attendance->on_break);
+                    $offbreak_seconds = strtotime($time);
+                    $break_seconds = $offbreak_seconds - $onbreak_seconds;
+
+                    // Format the break time in "x hr y min"
+                    $total_break_time = $this->formatTime($break_seconds);
                     break;
                 case 'checkout':
                     if (!$attendance->off_break) {
@@ -103,12 +118,15 @@ class AttendanceController extends Controller
                     $onbreak_seconds = strtotime($attendance->on_break);
                     $offbreak_seconds = strtotime($attendance->off_break);
 
+                    // Calculate total working seconds and break time seconds
                     $total_working_seconds = $checkout_seconds - $checkin_seconds - ($offbreak_seconds - $onbreak_seconds);
+                    $total_break_seconds = $offbreak_seconds - $onbreak_seconds;
 
-                    $total_hours = gmdate('H:i:s', $total_working_seconds);
+                    // Format working hours and break time
+                    $total_working_time = $this->formatTime($total_working_seconds);
+                    $total_break_time = $this->formatTime($total_break_seconds);
 
-                    $attendance->total_hours = $total_hours;
-
+                    $attendance->total_hours = gmdate('H:i:s', $total_working_seconds);
                     $attendance->checkout = $time;
                     break;
                 default:
@@ -128,13 +146,45 @@ class AttendanceController extends Controller
             ];
 
             $attendance = Attendance::create($attendanceData);
+            $total_break_time = null;
         }
 
         return response()->json([
             'message' => 'Attendance recorded successfully',
-            'attendance' => $attendance
+            'attendance' => $attendance,
+            'working_hours' => $total_working_time ?? 'N/A',
+            'break_time' => $total_break_time ?? 'N/A',
         ], 201);
     }
+
+    /**
+     * Helper function to format time in "x hr y min" format
+     */
+    private function formatTime($seconds)
+{
+    $hours = floor($seconds / 3600);
+    $minutes = floor(($seconds % 3600) / 60);
+
+    $formatted = '';
+
+    // Handle hours
+    if ($hours > 0) {
+        $formatted .= $hours === 1 ? '1 hour ' : "$hours hours ";
+    }
+
+    // Handle minutes
+    if ($minutes > 0) {
+        $formatted .= $minutes === 1 ? '1 minute' : "$minutes minutes";
+    }
+
+    // Return '0 minutes' if neither hours nor minutes exist
+    return $formatted ? trim($formatted) : '0 minutes';
+}
+
+
+
+
+
 
     // public function store(Request $request)
     // {
@@ -364,9 +414,28 @@ class AttendanceController extends Controller
             $q->where('name', 'admin');
         })->get();
 
-        // Send firebase the notification
-        foreach ($admins as $users) {
-            $this->firebaseService->sendNotification($users->token, 'Leave Request', Auth::user()->name . ' has requested for leave.');
+        // Firebase initialization
+        $serviceAccountPath = storage_path('attendance.json');
+        $factory = (new Factory)->withServiceAccount($serviceAccountPath);
+        $messaging = $factory->createMessaging();
+
+        // Send Firebase notification directly in the function
+        foreach ($admins as $admin) {
+            $token = $admin->token;
+            if (!$token) {
+                // Log or return a message if token is missing
+                Log::error("Admin {$admin->name} does not have a valid Firebase token.");
+                continue;
+            }
+
+            try {
+                $message = CloudMessage::withTarget('token', $token)
+                    ->withNotification(FirebaseNotification::create('Leave Request', Auth::user()->name . ' has requested for leave.'));
+                $messaging->send($message);
+                // return "Notification sent successfully";
+            } catch (\Kreait\Firebase\Exception\Messaging\NotFound $e) {
+                Log::error("Firebase token not found for admin: {$admin->name}, error: " . $e->getMessage());
+            }
         }
 
         return response()->json([
@@ -418,7 +487,7 @@ class AttendanceController extends Controller
         $notification->detail = $request->detail;
         $notification->save();
 
-        $users = User::where('token','!=',Null)->get();
+        $users = User::where('token', '!=', Null)->get();
 
         // Send firebase the notification
         foreach ($users as $user) {

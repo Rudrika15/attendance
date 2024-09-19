@@ -15,6 +15,9 @@ use Illuminate\Support\Arr;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB as FacadesDB;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification;
 
 class UserController extends Controller
 {
@@ -159,53 +162,76 @@ class UserController extends Controller
     }
     public function wish(Request $request)
     {
-
         $currentDate = Carbon::now();
         $currentMonth = $currentDate->format('m');
         $currentDay = $currentDate->format('d');
-        
+
         // Fetch all users whose birthday matches today's date
         $usersWithBirthday = User::whereMonth('birthdate', $currentMonth)
             ->whereDay('birthdate', $currentDay)
             ->get();
-        
+
         if ($usersWithBirthday->isEmpty()) {
             return response()->json([
                 'message' => 'No birthday found for today',
                 'data' => []
             ], 200);
         }
-        
+
         // Collect tokens of users with birthdays
-        $birthdayUserTokens = $usersWithBirthday->pluck('token');
-        
+        $birthdayUserTokens = $usersWithBirthday->pluck('token')->toArray();
+
+        $serviceAccountPath = storage_path('attendance.json');
+        $factory = (new Factory)->withServiceAccount($serviceAccountPath);
+        $messaging = $factory->createMessaging();
+        $title = '🎉 It\'s a Birthday Celebration! 🎉';
+
         // Notify each user about their own birthday
         foreach ($usersWithBirthday as $userData) {
             if ($userData->token) {
-                $this->firebaseService->sendNotification($userData->token, '🎉 Happy Birthday! 🎉', "Happy Birthday! May this year bring you success, happiness, and fulfillment both personally and professionally. Enjoy your special day and have a great year ahead! 🎂🥳🎁");
+                $body = "Today is your birthday, {$userData->name}! Wishing you a fantastic day filled with joy and happiness. 🎂🎁🥳";
+
+                $message = CloudMessage::withTarget('token', $userData->token)
+                    ->withNotification(Notification::create($title, $body));
+
+                // Send the notification
+                $messaging->send($message);
             }
         }
-        
+
         // Fetch all users who are not the ones with birthdays
         $allUsers = User::whereNotNull('token')
-            ->whereNotIn('token', $birthdayUserTokens)
+            // ->whereNotIn('token', $birthdayUserTokens)
             ->get();
-        
+
         // Notify all users about the birthdays of others
         foreach ($usersWithBirthday as $userData) {
+            
             foreach ($allUsers as $otherUser) {
                 if ($otherUser->token) {
-                    $this->firebaseService->sendNotification($otherUser->token,  '🎉 It\'s a Birthday Celebration! 🎉',
-                    "Today is {$userData->name}'s birthday! Let's join in the celebration and wish them a fantastic day filled with joy and happiness. 🎂🎁🥳");
+                    
+                    
+                 $wish = "Today is {$userData->name}'s birthday! Let's join in the celebration and wish them a fantastic day filled with joy and happiness. 🎂🎁🥳";
+
+                     $message = CloudMessage::withTarget('token', $otherUser->token)
+                        ->withNotification(Notification::create($title, $wish));
+
+
+                    $messaging->send($message);
                 }
             }
         }
-        
+
+
         return response()->json([
             'message' => 'Wish sent successfully',
             'data' => $usersWithBirthday
         ], 200);
-        
-        
+    }
+
+
+    public function privacyPolicy()
+    {
+        return view('extra.privacy-policy');
     }
 }

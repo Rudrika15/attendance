@@ -102,13 +102,14 @@ class AuthController extends Controller
             $user = User::where('phone', $request->phone)->first();
             $role  = $user->getRoleNames();
 
+            $token = $user->createToken("API TOKEN")->plainTextToken;
 
             return response()->json([
                 'status' => true,
                 'message' => 'User Logged In Successfully',
                 'user' => $user,
                 'role' => $role,
-                'token' => $user->createToken("API TOKEN")->plainTextToken
+                'token' => $token
             ], 200);
         } catch (\Throwable $th) {
             return response()->json([

@@ -99,8 +99,13 @@
             </li>
             <li class="nav-item active">
                 <a class="nav-link" href="{{ route('notification.index') }}">
-                    <i class="fas fa-fw fa-file"></i>
+                    <i class="fas fa-fw fa-bell"></i>
                     <span>Notification</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ route('leave.report') }}">
+                    <i class="fas fa-fw fa-bell"></i>
+                    <span>Leave reports</span></a>
             </li>
 
 

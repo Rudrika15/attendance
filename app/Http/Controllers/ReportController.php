@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Leave;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -35,7 +36,9 @@ class ReportController extends Controller
             });
             return $user;
         });
+          $leave = Leave::where('status', 'Approved')->get();
 
-        return view('report.report', compact('data'));
+
+        return view('report.report', compact('data','leave'));
     }
 }
