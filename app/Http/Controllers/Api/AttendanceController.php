@@ -55,8 +55,6 @@ class AttendanceController extends Controller
             ->whereDate('date', now()->toDateString())
             ->first();
 
-        $total_break_time = null;
-
         if ($attendance) {
             switch ($timekey) {
                 case 'checkin':
@@ -92,14 +90,6 @@ class AttendanceController extends Controller
                         ], 422);
                     }
                     $attendance->off_break = $time;
-
-                    // Calculate break time after `off_break`
-                    $onbreak_seconds = strtotime($attendance->on_break);
-                    $offbreak_seconds = strtotime($time);
-                    $break_seconds = $offbreak_seconds - $onbreak_seconds;
-
-                    // Format the break time in "x hr y min"
-                    $total_break_time = $this->formatTime($break_seconds);
                     break;
                 case 'checkout':
                     if (!$attendance->off_break) {
@@ -118,15 +108,12 @@ class AttendanceController extends Controller
                     $onbreak_seconds = strtotime($attendance->on_break);
                     $offbreak_seconds = strtotime($attendance->off_break);
 
-                    // Calculate total working seconds and break time seconds
                     $total_working_seconds = $checkout_seconds - $checkin_seconds - ($offbreak_seconds - $onbreak_seconds);
-                    $total_break_seconds = $offbreak_seconds - $onbreak_seconds;
 
-                    // Format working hours and break time
-                    $total_working_time = $this->formatTime($total_working_seconds);
-                    $total_break_time = $this->formatTime($total_break_seconds);
+                    $total_hours = gmdate('H:i:s', $total_working_seconds);
 
-                    $attendance->total_hours = gmdate('H:i:s', $total_working_seconds);
+                    $attendance->total_hours = $total_hours;
+
                     $attendance->checkout = $time;
                     break;
                 default:
@@ -146,44 +133,43 @@ class AttendanceController extends Controller
             ];
 
             $attendance = Attendance::create($attendanceData);
-            $total_break_time = null;
         }
+
+        // Notification message based on the timekey
+        // $message = '';
+        // switch ($timekey) {
+        //     case 'checkin':
+        //         $title = "Check in";
+        //         $message = "{$user->name} just checked in.";
+        //         break;
+        //     case 'on_break':
+        //         $title = "On break.";
+        //         $message = "{$user->name} is on break.";
+        //         break;
+        //     case 'off_break':
+        //         $title = "Off break.";
+        //         $message = "{$user->name} is off break.";
+        //         break;
+        //     case 'checkout':
+        //         $title = "Checked out.";
+        //         $message = "{$user->name} just checked out.";
+        //         break;
+        // }
+
+        // // Sending notifications to all users except the one who triggered the event
+        // $users = User::where('token', '!=', null)
+        //     ->where('id', '!=', $userId)
+        //     ->get();
+
+        // foreach ($users as $user) {
+        //     $this->firebaseService->sendNotification($user->token, $title, $message);
+        // }
 
         return response()->json([
             'message' => 'Attendance recorded successfully',
-            'attendance' => $attendance,
-            'working_hours' => $total_working_time ?? 'N/A',
-            'break_time' => $total_break_time ?? 'N/A',
+            'attendance' => $attendance
         ], 201);
     }
-
-    /**
-     * Helper function to format time in "x hr y min" format
-     */
-    private function formatTime($seconds)
-{
-    $hours = floor($seconds / 3600);
-    $minutes = floor(($seconds % 3600) / 60);
-
-    $formatted = '';
-
-    // Handle hours
-    if ($hours > 0) {
-        $formatted .= $hours === 1 ? '1 hour ' : "$hours hours ";
-    }
-
-    // Handle minutes
-    if ($minutes > 0) {
-        $formatted .= $minutes === 1 ? '1 minute' : "$minutes minutes";
-    }
-
-    // Return '0 minutes' if neither hours nor minutes exist
-    return $formatted ? trim($formatted) : '0 minutes';
-}
-
-
-
-
 
 
     // public function store(Request $request)
@@ -345,14 +331,46 @@ class AttendanceController extends Controller
         $userId = Auth::user()->id;
         $currentDate = now()->toDateString();
 
-        $data = Attendance::where('user_id', '=', $userId)
+        // Fetch attendance record for today
+        $data = Attendance::where('user_id', $userId)
             ->whereDate('date', $currentDate)
             ->get();
 
-        return response()->json([
-            'message' => 'Get Attendance recorded successfully',
-            'attendance' => $data
-        ], 201);
+
+        if ($data) {
+
+            return response()->json([
+                'message' => 'Get Attendance recorded successfully',
+                'attendance' => $data,
+            ], 201);
+        } else {
+
+            // If no data found
+            return response()->json([
+                'message' => 'No attendance record found for today.'
+            ], 404);
+        }
+    }
+
+    private function formatTime($seconds)
+    {
+        $hours = floor($seconds / 3600);
+        $minutes = floor(($seconds % 3600) / 60);
+
+        $formatted = '';
+
+        // Handle hours
+        if ($hours > 0) {
+            $formatted .= $hours === 1 ? '1 hour ' : "$hours hours ";
+        }
+
+        // Handle minutes
+        if ($minutes > 0) {
+            $formatted .= $minutes === 1 ? '1 minute' : "$minutes minutes";
+        }
+
+        // Return '0 minutes' if neither hours nor minutes exist
+        return $formatted ? trim($formatted) : '0 minutes';
     }
 
 

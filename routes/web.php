@@ -8,6 +8,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\VersionController;
 use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
@@ -36,3 +37,12 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::get('happy-birthday', [UserController::class, 'wish']);
 Route::get('privacy-policy', [UserController::class, 'privacyPolicy']);
+
+//  version Routes
+
+Route::get('version/index',[VersionController::class,'index'])->name('version.index');
+Route::get('version/create',[VersionController::class,'create'])->name('version.create');
+Route::post('version/store',[VersionController::class,'store'])->name('version.store');
+Route::get('version/edit/{id?}',[VersionController::class,'edit'])->name('version.edit');
+Route::post('version/update',[VersionController::class,'update'])->name('version.update');
+Route::get('version/delete/{id?}',[VersionController::class,'delete'])->name('version.delete');

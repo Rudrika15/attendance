@@ -39,5 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/showTask',[TaskController::class,'showTask']);
     Route::post('/updateTask',[TaskController::class,'updateTask']);
     Route::get('/allTask',[TaskController::class,'allTask']);
-
+    
 });
+
+Route::get('getVersion',[TaskController::class,'version']);

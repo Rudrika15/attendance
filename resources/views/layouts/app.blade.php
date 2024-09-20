@@ -104,8 +104,13 @@
             </li>
             <li class="nav-item active">
                 <a class="nav-link" href="{{ route('leave.report') }}">
-                    <i class="fas fa-fw fa-bell"></i>
+                    <i class="fas fa-fw fa-"></i>
                     <span>Leave reports</span></a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="{{ route('version.index') }}">
+                    <i class="fas fa-fw fa-bell"></i>
+                    <span>App Version</span></a>
             </li>
 
 
