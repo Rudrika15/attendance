@@ -27,6 +27,7 @@ class VersionController extends Controller
 
         $version = new Version();
         $version->version = $request->version;
+        $version->majorUpdate = $request->major;
         $version->save();
         return redirect()->route('version.index');
     }
@@ -45,6 +46,7 @@ class VersionController extends Controller
         $id = $request->versionId;
         $version = Version::find($id);
         $version->version = $request->version;
+        $version->majorUpdate = $request->major;
         $version->save();
         return redirect()->route('version.index');
     } 

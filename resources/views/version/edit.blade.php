@@ -40,6 +40,33 @@
                             <input type="text" name="version" value="{{$version->version}}" placeholder="Add Version" class="form-control">
                         </div>
                     </div>
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
+                            <strong>Major:</strong>
+                            @if($version->majorUpdate == 1)
+                            <label>
+
+                                <input type="radio" checked name="major" value="1"> Yes
+                                
+                            </label>
+                            <label>
+
+                                &nbsp;<input type="radio" name="major"  value="0"> No
+                            </label>
+                            @else
+                            <label>
+
+                                <input type="radio"  name="major" value="1"> Yes
+                                
+                            </label>
+                            <label>
+
+                                &nbsp;<input type="radio" checked name="major"  value="0"> No
+                            </label>
+                            @endif
+
+                        </div>
+                    </div>
                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                         <button type="submit" class="btn btn-success btn-sm mt-2 mb-3"><i class="fa-solid fa-floppy-disk"></i>
                             Submit</button>

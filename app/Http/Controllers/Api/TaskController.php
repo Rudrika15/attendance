@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Leave;
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Version;
 use Carbon\Carbon;
 use COM;
@@ -73,7 +75,7 @@ class TaskController extends Controller
             ], 200);
         }
         $task = Task::find($request->id);
-        
+
         if ($task->created_at->format('Y-m-d') == date('Y-m-d')) {
 
 
@@ -125,7 +127,7 @@ class TaskController extends Controller
         }
 
         $task = Task::find($request->id);
-       
+
         if ($task->created_at->format('Y-m-d') == date('Y-m-d')) {
 
             $task->task = $request->task;
@@ -147,10 +149,11 @@ class TaskController extends Controller
         $date = $request->date;
         $name = $request->name;
 
-        $query = Task::orderBy('id', 'desc')->with('taskWithUser');
+        // $query = Task::orderBy('id', 'desc')->with('taskWithUser');
+        $query = User::orderBy('id', 'desc')->with('task')->get();
 
         if ($name) {
-            $query->whereHas('taskWithUser', function ($q) use ($name) {
+            $query->with('task', function ($q) use ($name) {
                 $q->where('name', 'like', '%' . $name . '%');
             });
         }
@@ -176,5 +179,19 @@ class TaskController extends Controller
             'message' => 'Version List successfully',
             'data' => $version
         ], 200);
+    }
+    public function todaysLeave(Request $request)
+    {
+
+        $todayOnLeave = Leave::where('status', 'Approved')->with('user')
+            ->whereDate('startDate', '<=', Carbon::today()->toDateString())
+            ->whereDate('endDate', '>=', Carbon::today()->toDateString())
+            ->paginate(10);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Leave List successfully',
+            'data' => $todayOnLeave
+        ]);
     }
 }

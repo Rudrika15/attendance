@@ -30,16 +30,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/leave-applications', [AdminController::class, 'leaveApplication']);
     Route::post('/leave-approval/{id}', [AdminController::class, 'approveLeave']);
     Route::post('/leave/cancel/{id}', [AdminController::class, 'cancelLeave']);
-    
+
     Route::get('/notifications', [AttendanceController::class, 'getNotifications']);
     //task
-    Route::get('/mytask',[TaskController::class,'myTask']);
-    Route::post('/task',[TaskController::class,'addTask']);
-    Route::delete('/deleteTask',[TaskController::class,'deleteTask']);
-    Route::get('/showTask',[TaskController::class,'showTask']);
-    Route::post('/updateTask',[TaskController::class,'updateTask']);
-    Route::get('/allTask',[TaskController::class,'allTask']);
-    
+    Route::get('/mytask', [TaskController::class, 'myTask']);
+    Route::post('/task', [TaskController::class, 'addTask']);
+    Route::delete('/deleteTask', [TaskController::class, 'deleteTask']);
+    Route::get('/showTask', [TaskController::class, 'showTask']);
+    Route::post('/updateTask', [TaskController::class, 'updateTask']);
+    Route::get('/todaysLeave', [TaskController::class, 'todaysLeave']);
 });
 
-Route::get('getVersion',[TaskController::class,'version']);
+Route::get('/allTask', [TaskController::class, 'allTask']);
+Route::get('getVersion', [TaskController::class, 'version']);

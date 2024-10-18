@@ -19,7 +19,12 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'phone', 'email', 'password',  'device_token','birthdate'
+        'name',
+        'phone',
+        'email',
+        'password',
+        'device_token',
+        'birthdate'
     ];
 
     // Ensure phone is cast to string if necessary
@@ -52,5 +57,10 @@ class User extends Authenticatable
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
+    }
+
+    public function task()
+    {
+        return $this->belongsTo(Task::class, 'id', 'userId');
     }
 }
