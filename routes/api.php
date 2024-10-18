@@ -38,8 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/deleteTask', [TaskController::class, 'deleteTask']);
     Route::get('/showTask', [TaskController::class, 'showTask']);
     Route::post('/updateTask', [TaskController::class, 'updateTask']);
+    Route::get('/allTask', [TaskController::class, 'allTask']);
     Route::get('/todaysLeave', [TaskController::class, 'todaysLeave']);
 });
 
-Route::get('/allTask', [TaskController::class, 'allTask']);
 Route::get('getVersion', [TaskController::class, 'version']);

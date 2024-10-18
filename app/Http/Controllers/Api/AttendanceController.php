@@ -466,7 +466,7 @@ class AttendanceController extends Controller
     public function myLeaves()
     {
         $userId = Auth::user()->id;
-        $leaves = Leave::where('userId', $userId)->get();
+        $leaves = Leave::where('userId', $userId)->orderBy('id', 'desc')->get();
         return response()->json([
             'message' => 'Get Leaves successfully',
             'data' => $leaves
