@@ -150,17 +150,20 @@ class TaskController extends Controller
         $name = $request->name;
 
         // $query = Task::orderBy('id', 'desc')->with('taskWithUser');
-        $query = User::orderBy('id', 'desc')->with('task')->get();
+        $query = User::orderBy('id', 'desc')
+            ->whereHas('roles', function ($q) {
+                $q->where('name', '!=', 'Admin');  // Exclude users with role 'admin'
+            });
 
         if ($name) {
-            $query->with('task', function ($q) use ($name) {
-                $q->where('name', 'like', '%' . $name . '%');
-            });
+            $query->where('name', 'like', '%' . $name . '%');  // Filter by task name if provided
         }
 
-        if ($date) {
-            $query->whereDate('created_at', $date);
-        }
+        $query->with(['task' => function ($q) use ($date) {
+            if ($date) {
+                $q->whereDate('created_at', $date);  // Filter by created_at date
+            }
+        }]);
 
         $task = $query->get();
 
